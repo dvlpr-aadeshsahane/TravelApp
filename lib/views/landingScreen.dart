@@ -1,27 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:travel/consts/assetsurl.dart';
 import 'package:travel/consts/color_pallete.dart';
 import 'package:travel/consts/typography.dart';
+import 'package:travel/main.dart';
+
+class LandingScreenData {
+  String? img;
+  String? title;
+  String? subTitle;
+
+  LandingScreenData({this.img, this.title, this.subTitle});
+}
+
+List<LandingScreenData> pages = [
+  LandingScreenData(
+      img: Assetsurl.iglanding1,
+      title: "Find Cheaper\nFlights Instantly",
+      subTitle:
+          "Compare prices from all flight booking\nservices in one place. Book the best deal\neffortlessly!"),
+  LandingScreenData(
+      img: Assetsurl.iglanding2,
+      title: "Let AI Plan Your\nDream Trip",
+      subTitle:
+          "Let our smart AI create personalized itineraries\nbased on your preferences. From destinations\nto activities, plan your ideal trip in minutes\nwithout the hassle."),
+  LandingScreenData(
+      img: Assetsurl.iglanding3,
+      title: "Discover Exciting\nHoliday Packages",
+      subTitle:
+          "Book personalized holiday packages\ntailored to your travel style."),
+];
 
 class Landingscreen extends StatelessWidget {
   Landingscreen({super.key});
-  PageController pageController = PageController(initialPage: 0);
+  PageController pageController = PageController();
 
   int _currentPage = 0;
-
-  void _nextPage() {
+  nextPage(context) {
     if (_currentPage < 2) {
-      pageController.animateToPage(
-        _currentPage += 1,
-        duration: Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
+      pageController.nextPage(
+          duration: Duration(milliseconds: 600), curve: Curves.ease);
+    } else {
+      GoRouter.of(context).goNamed(Routes.selectlanguage.name);
     }
-    //   if (_currentPage == 2) {
-    //     GoRouter.of(context).goNamed(Routes.login.name);
-    //   }
   }
 
   @override
@@ -35,14 +58,19 @@ class Landingscreen extends StatelessWidget {
               child: Stack(
                 children: [
                   PageView(
-                      physics: NeverScrollableScrollPhysics(),
-                      controller: pageController,
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        landingMethod(img: Assetsurl.iglanding1),
-                        landingMethod(img: Assetsurl.iglanding2),
-                        landingMethod(img: Assetsurl.iglanding3),
-                      ]),
+                    onPageChanged: (index) {
+                      _currentPage = index;
+                    },
+                    physics: NeverScrollableScrollPhysics(),
+                    controller: pageController,
+                    scrollDirection: Axis.horizontal,
+                    children: List.generate(
+                      pages.length,
+                      (index) => landingMethod(
+                        pages[index],
+                      ),
+                    ),
+                  ),
                   Positioned(
                     bottom: 80,
                     left: 25,
@@ -50,7 +78,7 @@ class Landingscreen extends StatelessWidget {
                       controller: pageController,
                       count: 3,
                       effect: ExpandingDotsEffect(
-                          dotColor: Colors.grey,
+                          dotColor: Colors.white,
                           activeDotColor: Appcolors.primaryColor,
                           dotHeight: 5),
                     ),
@@ -59,16 +87,17 @@ class Landingscreen extends StatelessWidget {
                     right: 25,
                     bottom: 60,
                     child: IconButton.filled(
-                        style: ButtonStyle(
-                            backgroundColor:
-                                WidgetStatePropertyAll(Colors.white)),
-                        onPressed: () {
-                          _nextPage();
-                        },
-                        icon: Icon(
-                          Icons.arrow_forward_ios,
-                          color: Colors.grey,
-                        )),
+                      style: ButtonStyle(
+                          backgroundColor:
+                              WidgetStatePropertyAll(Colors.white)),
+                      onPressed: () {
+                        nextPage(context);
+                      },
+                      icon: Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.grey,
+                      ),
+                    ),
                   )
                 ],
               ),
@@ -79,11 +108,12 @@ class Landingscreen extends StatelessWidget {
     );
   }
 
-  Container landingMethod({img}) {
+  Container landingMethod(LandingScreenData data) {
     return Container(
         width: double.infinity,
         decoration: BoxDecoration(
-            image: DecorationImage(fit: BoxFit.cover, image: AssetImage(img))),
+            image: DecorationImage(
+                fit: BoxFit.cover, image: AssetImage(data.img!))),
         child: Padding(
           padding: const EdgeInsets.only(left: 24, right: 20, top: 10),
           child: Column(
@@ -92,7 +122,9 @@ class Landingscreen extends StatelessWidget {
               Align(
                   alignment: Alignment.topRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // GoRouter.of(context).goNamed(Routes.selectlanguage.name);
+                    },
                     child: Text(
                       "skip>",
                       style: TextStyle(
@@ -105,7 +137,7 @@ class Landingscreen extends StatelessWidget {
                 height: 420.h,
               ),
               Text(
-                "Find Cheaper \nFlights Instantly",
+                data.title!,
                 style: TextStyle(
                     color: Colors.white,
                     fontFamily: Typo.manropeBold,
@@ -115,7 +147,7 @@ class Landingscreen extends StatelessWidget {
                 height: 19.h,
               ),
               Text(
-                "Compare prices from all flight booking\nservices in one place. Book the best deal\neffortlessly!",
+                data.subTitle!,
                 style: TextStyle(
                     color: Colors.white,
                     fontFamily: Typo.manropeRegular,
